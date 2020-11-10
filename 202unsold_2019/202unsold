@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+from check_args import *
+from print import *
+from calc import *
+import sys
+import math
+
+def unsold(a, b):
+    array = get_array_res(a, b)
+    result_y_law = get_result_y_law(array)
+    print("------------------------------------------------------------")
+    print_tab(array, result_y_law)
+    print("------------------------------------------------------------")
+    Zarray = print_Zarray(array, a, b)
+    print("------------------------------------------------------------")
+    print_expected_variance(array, result_y_law, Zarray, a, b)
+    print("------------------------------------------------------------")
+
+check_args()
+unsold(int(sys.argv[1]), int(sys.argv[2]))

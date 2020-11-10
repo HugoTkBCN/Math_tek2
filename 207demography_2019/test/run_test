@@ -1,0 +1,13 @@
+#!/bin/bash
+
+./207demography EUU > test/1
+./207demography BRA BOL PER > test/2
+
+cd test
+
+diff 1 res1
+diff 2 res2
+
+rm 1 2
+
+echo "Test completed"

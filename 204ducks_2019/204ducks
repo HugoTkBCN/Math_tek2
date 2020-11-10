@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+import sys
+import math
+
+def print_help(return_value):
+    print("USAGE")
+    print("    ./204ducks a")
+    print("")
+    print("DESCRIPTION")
+    print("    a      constant")
+    exit(return_value)
+
+def get_time_ducks_back(minimum, a):
+    time = 1.0
+    while ((proba_density(a, time / 60) - proba_density(a, 0)) < minimum):
+        time += 0.01
+    return (time)
+
+def print_time(n):
+    n = round(n)
+    print("%dm %d%ds" %(n / 60, n % 60 / 10, n % 10))
+
+def proba_density(a, t):
+    return (-a * math.exp(-t) - (4 - 3 * a) / 2 * math.exp(-2 * t) - (2 * a - 4) / 4 * math.exp(-4 * t))
+
+def proba(a, t):
+    return ( a * math.exp(-t) + (4 - 3 * a) * math.exp(-2 * t) + (2 * a - 4) * math.exp(-4 * t))
+
+def get_percentage(a, t):
+    return ((proba_density(a, t) - proba_density(a, 0)) * 100)
+
+def get_standard_dev(a, t, r):
+    d = 0
+    while (t > 0):
+        d += ((t - r) ** 2) * (proba(a, t) / 10)
+        t -= 0.001
+    d /= 99.9999
+    d = d ** 0.5
+    print("Standard deviation: %.3f" % d)
+
+def get_mean_return_time(a):
+    p = 0
+    r = 0
+    t = 0
+    while p < 99.9999:
+        p += proba(a, t) / 10
+        r += (proba(a, t) / 10) * t
+        t += 0.001
+    r /= 99.9999
+    r += 1./60
+    print("Average return time: %dm %02ds" % divmod(r * 60, 60))
+    get_standard_dev(a, t, r)
+
+def ducks(a):
+    get_mean_return_time(a)
+    print("Time after which 50% of the ducks are back: ", end='')
+    print_time(get_time_ducks_back(0.5, a))
+    print("Time after which 99% of the ducks are back: ", end='')
+    print_time(get_time_ducks_back(0.99, a))
+    print("Percentage of ducks back after 1 minute: %0.1f%%" %(get_percentage(a, 1)))
+    print("Percentage of ducks back after 2 minutes: %0.1f%%" %(get_percentage(a, 2)))
+
+if (len(sys.argv) > 2 or len(sys.argv) < 2):
+    print_help(84)
+else:
+    try:
+        if (sys.argv[1] == "-h"):
+            print_help(0)
+        a = float(sys.argv[1])
+        if (a >= 0 and a <= 2.5):
+            ducks(a)
+        else:
+            print ("Error : Argument must be between 0 and 2.5\nRun with -h for help")
+            exit (84)
+    except ValueError:
+        print ("Error : Argument must be between 0 and 2.5\nRun with -h for help")
+        exit(84)

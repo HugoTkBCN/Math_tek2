@@ -1,0 +1,15 @@
+#!/bin/bash
+
+./208dowels 6 4 10 18 20 19 11 5 7 > test/1
+./208dowels 6 4 10 8 20 19 11 5 17 > test/2
+./208dowels 4 5 13 19 20 16 12 7 4 > test/3
+
+cd test
+
+diff 1 res1
+diff 2 res2
+diff 3 res3
+
+rm 1 2 3
+
+echo "test completed"

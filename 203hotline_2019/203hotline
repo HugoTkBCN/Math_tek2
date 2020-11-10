@@ -1,0 +1,98 @@
+#! /bin/python3
+
+import sys
+import math
+import time
+
+def print_usage():
+    print("USAGE")
+    print("\t./203hotline [n k | d]")
+    print("DESCRIPTION")
+    print("n\tn value for the computation of C(n, k)")
+    print("k\tk value for the computation of C(n, k)")
+    print("d\taverage duration of calls (in seconds)")
+
+def is_numeric_args(args):
+    for argument in args[1:]:
+        if (not argument.isdigit()):
+            return False
+    return True
+
+def check_args():
+    ac = len(sys.argv)
+    if (ac != 2 and ac != 3):
+        exit(84)
+    elif (ac == 2 and sys.argv[1] == "-h"):
+        print_usage()
+        exit(0)
+    elif (not is_numeric_args(sys.argv)):
+        exit(84)
+    if (ac == 2):
+        return (1)
+    else:
+        return (2)
+
+def print_result(i, result):
+    if (i + 1) % 5 and i < 50 :
+        print(i, "->", "%.3f" % result, end="\t")
+    else :
+        print(i, "->", "%.3f" % result, end="\n")
+
+def print_overload_time(overload, start_time):
+    print("Overload:", "%.1f%%" % (overload * 100))
+    print("Computation time:", "%.2f" % (((time.time() - start_time)) * 1000),"ms")
+
+def coeff_bin(n, k):
+    return (math.factorial(n) // (math.factorial(k) * math.factorial(n - k)))
+
+def func_overload(result_list:list) -> float:
+    result = 0
+    for i in range(26):
+        result += result_list[i]
+    return (1 - result)
+
+def binomial(n):
+    start_time = time.time()
+    list_result = []
+    p = n / (8 * 60 * 60)
+    print("Binomial distribution:")
+    for i in range(0, 51):
+        result = (coeff_bin(3500, i) * (p ** i) * ((1 - p) ** (3500 - i)))
+        print_result(i, result)
+        list_result.append(result)
+    if (n > 320):
+        print_overload_time(1, start_time)
+    else: 
+        overload = func_overload(list_result)
+        print_overload_time(overload, start_time)
+
+def poisson(n):
+    start_time = time.time()
+    list_result = []
+    p = (n / (8 * 60 * 60)) * 3500
+    print("Poisson distribution:")
+    for i in range(0, 51):
+        result = (math.exp(p * -1) * p ** i) / (math.factorial(i))
+        print_result(i, result)
+        list_result.append(result)
+    if (n > 320):
+        print_overload_time(1, start_time)
+    else: 
+        overload = func_overload(list_result)
+        print_overload_time(overload, start_time)
+
+def main():
+    if (check_args() == 1):
+        n = int(sys.argv[1])
+        binomial(n)
+        print()
+        poisson(n)
+    else:
+        n = int(sys.argv[1])
+        k = int(sys.argv[2])
+        if (k >= 0 and n >= 0 and n - k >= 0):
+            print(k, "-combinations of a set of size ", n, ":\n", coeff_bin(n, k), sep='')
+        else:
+            sys.exit(84)
+
+main()

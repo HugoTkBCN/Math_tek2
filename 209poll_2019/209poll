@@ -1,0 +1,80 @@
+#!/usr/bin/python3
+## EPITECH PROJECT, 2020
+## 209poll
+## File description:
+## main
+##
+
+import sys
+import math
+
+def print_error(message):
+    print("Error:", message)
+    sys.exit(84)
+
+def print_help():
+    print("USAGE")
+    print("    ./209poll pSize sSize p", end="\n\n")
+    print("DESCRIPTION")
+    print("    pSize  size of the population")
+    print("    sSize  size of the sample (supposed to be representative)")
+    print("    p      percentage of voting intentions for a specific candidate")
+
+def get_min(min):
+    return ("0.00%" if (min < 0) else "%0.2f%%" % (min))
+
+def get_max(max):
+    return ("100.00%" if (max > 100) else "%0.2f%%" % (max))
+
+def print_result(old_p, p_size, s_size, p, variance, p1, p2):
+    print("Population size:\t", p_size)
+    print("Sample size:\t\t", s_size)
+    print("Voting intentions:\t %.2f%%" % old_p)
+    print("Variance:\t\t %0.6f" % (variance))
+    print("95% confidence interval: [", get_min(p * 100 - p1), "; ", get_max(p * 100 + p1), "]", sep="")
+    print("99% confidence interval: [", get_min(p * 100 - p2), "; ", get_max(p * 100 + p2), "]", sep="")
+
+def get_variance(p, s_size, p_size):
+    return (((p * (1 - p)) / s_size) * ((p_size - s_size) / (p_size - 1)))
+
+def compute(old_p, p_size, s_size):
+    p = old_p / 100
+    variance = get_variance(p, s_size, p_size)
+    p1 = (2 * 1.96 * math.sqrt(variance)) / 2 * 100
+    p2 = (2 * 2.58 * math.sqrt(variance)) / 2 * 100
+    return (p, variance, p1, p2)
+
+def check_errors(p, p_size, s_size):
+    if (p_size <= 1):
+        print_error("pSize must be positive")
+    elif (s_size <= 0):
+        print_error("sSize must be positive")
+    elif (s_size > p_size):
+        print_error("sSize must be inferior to pSize")
+    elif (p < 0 or p > 100):
+        print_error("p must be between 0 and 100")
+
+def get_arg(ac, av):
+    try:
+        if (ac != 4):
+            print_help()
+            sys.exit(0 if (ac == 2 and av[1] == "-h") else 84)
+        else:
+            p_size = int(av[1])
+            s_size = int(av[2])
+            p = float(av[3])
+            check_errors(p, p_size, s_size)
+            return (p, p_size, s_size)
+    except ValueError:
+        print_error("Bad parameters!")
+
+def run(old_p, p_size, s_size):
+    p, variance, p1, p2 = compute(old_p, p_size, s_size)
+    print_result(old_p, p_size, s_size, p, variance, p1, p2)
+
+def main(ac, av):
+    old_p, p_size, s_size = get_arg(ac, av)
+    run(old_p, p_size, s_size)
+    return (0)
+
+sys.exit(main(len(sys.argv), sys.argv))

@@ -1,0 +1,94 @@
+#!/usr/bin/python3
+
+import sys
+import math
+
+def print_help(bin):
+    print("USAGE")
+    print("    ", bin, " u s [IQ1] [IQ2]", sep="")
+    print("DESCRIPTION")
+    print("    u      mean")
+    print("    s      standard deviation")
+    print("    IQ1    minimum IQ")
+    print("    IQ2    maximum IQ")
+
+def is_num(arg):
+    for i in arg :
+        if ((i > '9' or i < '0')):
+            return (False)
+    return (True)
+
+def proba_density(u, s, min, max, interval):
+    array = []
+    i = min
+    while (i < max):
+        array.append(((1 / (s * math.sqrt(2 * math.pi))) * (math.exp(-0.5 * pow((i - u) / s, 2)))))
+        i += interval
+    return (array)
+
+def process3(u, s):
+    array = proba_density(u, s, 0, 201, 1)
+    for i in range (0, 201):
+        print(i, "%0.5f" % (array[i]))
+
+def process1(u, s, q1):
+    result = 0
+    array = proba_density(u, s, 0.0, q1, 0.01)
+    for res in array:
+        result += res
+    print("%.1f" % result, "% of people have an IQ inferior to ", q1, sep="")
+
+def process2(u, s, q1, q2):
+    result = 0
+    array = proba_density(u, s, q1, q2, 0.01)
+    for res in array:
+        result += res
+    print("%.1f" % result, "% of people have an IQ between ", q1, " and ", q2, sep="")
+
+def checkArgs(ac, av):
+    if (ac == 2 and (av[1] == "-h" or av[1] == "--help")):
+        print_help(av[0])
+        return (0)
+    elif (ac < 3 or ac > 5) or (is_num(av[1]) == False or is_num(av[2]) == False):
+        print_help(av[0])
+        return (84)
+    elif ((int(av[2]) <= 0 or int(av[2]) > 200) or (int(av[1]) <= 0 or int(av[1]) > 200)):
+        print("Values must be between 0 and 200.")
+        return (84)
+    elif (ac == 4):
+        if (is_num(av[3]) == False):
+            print_help(av[0])
+            return (84)
+        if ((int(av[3]) <= 0 or int(av[3]) > 200)):
+            print("Values must be between 0 and 200.")
+            return (84)
+    elif (ac == 5):
+        if (is_num(av[3]) == False or is_num(av[4]) == False):
+            print_help(av[0])
+            return (84)
+        if ((int(av[3]) <= 0 or int(av[3]) > 200) or (int(av[4]) <= 0 or int(av[4]) > 200)):
+            print("Values must be between 0 and 200.")
+            return (84)
+        if (int(av[3]) > int(av[4])):
+            print("Must q2 > q1")
+            return (84)
+    return (1)
+
+def main(ac, av):
+    ret = checkArgs(ac, av)
+    if (ret != 1):
+        return (ret)
+    u = int(av[1])
+    s = int(av[2])
+    if (ac == 3):
+        process3(u, s)
+    elif (ac == 4):
+        q1 = int(av[3])
+        process1(u, s, q1)
+    else:
+        q1 = int(av[3])
+        q2 = int(av[4])
+        process2(u, s, q1, q2)
+    return (0)
+
+sys.exit(main(len(sys.argv), sys.argv))

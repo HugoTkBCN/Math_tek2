@@ -1,0 +1,159 @@
+#!/usr/bin/python3
+
+import sys
+import math
+
+def print_help():
+    print("USAGE\n    ./207demography code [...]\n\nDESCRIPTION\n    code    country code")
+
+def read_file(country_code, y):
+    f = open("207demography_data.csv", "r")
+    parsed = []
+    i = 0
+    find = False
+
+    if f.mode == 'r':
+        lines = f.readlines()
+        for line in lines:
+            parsed = line.split(';')
+            if (parsed[1] == country_code):
+                country = parsed[0]
+                find = True
+                tmp_val_list_index.append([])
+                tmp_val_list.append([])
+                for tmp in parsed:
+                    if (i > 1):
+                        tmp_val_list[y].append(float(tmp))
+                        tmp_val_list_index[y].append(i - 1 + 1959)
+                    i += 1
+        if (find == False):
+            print(country_code + " doesn't ex1st")
+            sys.exit(84)
+        return (country)
+
+def load_country(av):
+    size = 0
+    countrys = []
+    y = 0
+
+    for tmp in av:
+        countrys.append(read_file(tmp, y))
+        y += 1
+    for i in tmp_val_list_index[0]:
+        val_list_index.append(i)
+    for list_country_val in tmp_val_list:
+        for x in range (0, len(list_country_val)):
+            val_list[x] += list_country_val[x]
+            
+    print("Country: ", end="")
+    countrys.sort()
+    for tmp in countrys:
+        print(tmp, end="")
+        if (size < (len(countrys) - 1)):
+            print(", ", end="")
+        size += 1
+    print()
+    global x1
+    global y1
+    global x2
+    global y2
+    global xy
+    for i in range(0, len(val_list)):
+        x1 += val_list_index[i]
+        y1 += val_list[i]
+        x2 += pow(val_list_index[i], 2)
+        y2 += pow(val_list[i], 2)
+        xy += val_list_index[i] * val_list[i]
+
+def fit1():
+    b = 0
+    a = 0
+    sum = 0
+    print("Fit1")
+    val_list_size = len(val_list)
+    b = (val_list_size * xy - x1 * y1) / (val_list_size * x2 - math.pow(x1, 2))
+    a = ((1.0 / val_list_size) * y1) - b * 1.0 / val_list_size * x1
+    print("    Y = %.2lf X " % (b/1000000), end="")
+    if (a < 0):
+        print("- ", end="")
+        print("%.2f" % ((a/1000000) * -1))
+    else:
+        print("+ ", end="")
+        print("%.2f" % (a/1000000))
+    for i in range(0, len(val_list)):
+        sum += ((b * val_list_index[i] + a) - val_list[i])**2 / float(val_list_size)
+    print("    Root-mean-square deviation: %.2f" % float(math.sqrt(float(sum)) / 1000000))
+    print("    Population in 2050: %.2f" % float(float((float(b) * 2050.0) + float(a)) / 1000000))
+
+def fit2():
+    b = 0
+    a = 0
+    sum = 0
+
+    print("Fit2")
+    val_list_size = len(val_list)
+    b = (val_list_size * xy - x1 * y1) / (val_list_size * y2 - pow(y1, 2))
+    a = ((1.0 / val_list_size) * x1) - b * 1.0 / val_list_size * y1
+    b = b * 1000000
+    print("    X = %.2f Y " % b, end="")
+    if (a < 0):
+        print("- ", end="")
+        print("%.2f" % (a * -1))
+    else:
+        print("+ ", end="")
+        print("%.2f" % a)
+    for i in range(0, len(val_list)):
+	    sum += pow(val_list[i] - (((val_list_index[i] - a) / b) * 1000000), 2)
+    print("    Root-mean-square deviation: %.2f" % float(math.sqrt(float(sum) / float(val_list_size)) / 1000000))
+    print("    Population in 2050: %.2f" % float((2050.0 - float(a)) / float(b)))
+
+def correlation():
+    val_list_size = len(val_list)
+    size = val_list_size
+    sub1 = size * x2 - pow(x1, 2)
+    sub2 = size * y2 - pow(y1, 2)
+    sup = size * xy - x1 * y1
+    result = sup / math.sqrt(sub1 * sub2)
+
+    print("Correlation: %.4f" % result)
+
+def run(ac, av):
+    try:
+        av.pop(0)
+        load_country(av)
+        fit1()
+        fit2()
+        correlation()
+        pass
+    except:
+        print("Error")
+        sys.exit(84)
+
+def main(ac):
+    av = []
+    if (ac == 1):
+        print("Invalid number of argument, run ./207demography -h")
+        sys.exit(84)
+    elif (ac == 2 and sys.argv[1] == "-h"):
+        print_help()
+    else:
+        for i in range (0, ac):
+            av.append(sys.argv[i])
+            for y in range (0, ac):
+                if (sys.argv[i] == sys.argv[y] and i != y):
+                    print("Error: 2 times the same country")
+                    sys.exit(84)
+        run(ac, av)
+    return (0)
+
+ac = len(sys.argv)
+tmp_val_list_index = []
+tmp_val_list = []
+val_list = [0] * 58
+val_list_index = []
+x1 = 0
+y1 = 0
+x2 = 0
+y2 = 0
+xy = 0
+sys.exit(main(ac))

@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+##
+## EPITECH PROJECT, 2020
+## 201yams
+## File description:
+## MAT
+##
+
+from collections import deque
+import sys
+
+from print_error import check_error, print_error
+from compute import *
+from format import *
+
+def check_args():
+    if len(sys.argv) <= 1:
+        exit(84)
+    elif sys.argv[1] == "-h" and len(sys.argv) == 2:
+        print_usage()
+        exit (0)
+
+check_args()
+argv = sys.argv
+argv.pop(0)
+if len(argv) != 6 :
+    print_error("Usage. Run with -h")
+types = argv.pop(-1)
+numbers = argv
+types = types.split('_')
+check_error(numbers, types)
+if types[0] == "full" :
+    if len(types) != 3 :
+        print_error("Usage. Run with -h")
+    elif types[1] == types[2] or types[1] <= '0' or types[1] > '6' or types[2] <= '0' or types[2] > '6':
+        print_error("Usage. Run with -h")
+    numbers_dic = listToDict(numbers)
+    count_full_first = len([k for k,v in numbers_dic.items() if v == types[1]])
+    count_full_second = len([k for k,v in numbers_dic.items() if v == types[2]])
+    display(types[0], round(full(count_full_first, count_full_second), 4) * 100, types[1], types[2])
+else :
+    if len(types) != 2 :
+        print_error("Usage. Run with -h")
+    numbers_dic = listToDict(numbers)
+    count = len([k for k,v in numbers_dic.items() if v == types[-1]])
+    if types[0] == "yams" :
+        display(types[0], number_format(round(yams(count), 4) * 100, 2), types[1])
+    if types[0] == "four" :
+        display("four-of-a-kind", number_format(round(four(count), 4) * 100, 2), types[1])
+    if types[0] == "three" :
+	    display("three-of-a-kind", number_format(round(brolan(count), 4) * 100, 2), types[1])
+    if types[0] == "pair" :
+	    display(types[0], number_format(round(pair(count), 4) * 100, 2) , types[1])
+    if types[0] == "straight" :
+        display(types[0], number_format(round(straight(types[1], numbers), 4) * 100, 2), types[1])
+exit(0)
